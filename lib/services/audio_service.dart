@@ -32,24 +32,26 @@ class AudioService {
         final directory = await getApplicationDocumentsDirectory();
         final filePath = '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
         
-        // Start audio recording
+        // Start audio recording with improved audio quality
         await _audioRecorder.start(
           path: filePath,
           encoder: AudioEncoder.aacLc,
-          bitRate: 128000,
-          samplingRate: 44100,
+          bitRate: 296000, // Increased bitrate for better audio quality
+          samplingRate: 60000, // Higher sampling rate
         );
 
-        // Start continuous speech recognition
+        // Start continuous speech recognition with enhanced sensitivity
         await _speechToText.listen(
           onResult: (result) {
-            if (result.finalResult || result.recognizedWords.isNotEmpty) {
+            // More aggressive recognition
+            if (result.recognizedWords.isNotEmpty) {
               onResult(result.recognizedWords);
             }
           },
           listenMode: stt.ListenMode.dictation,
           partialResults: true,
           cancelOnError: true,
+          localeId: 'en_US', // Specify locale for better recognition
         );
 
         _isRecording = true;

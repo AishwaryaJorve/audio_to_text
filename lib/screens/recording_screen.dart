@@ -53,19 +53,21 @@ class _RecordingScreenState extends State<RecordingScreen> {
   }
 
   Future<void> _toggleRecording() async {
-    try {
-      if (!_isRecording) {
-        // Start recording
-        setState(() {
-          _transcribedText = '';
-          _transcriptionController.clear();
-          _isRecording = true;
-        });
+  try {
+    if (!_isRecording) {
+      // Start recording
+      setState(() {
+        _transcribedText = '';
+        _transcriptionController.clear();
+        _isRecording = true;
+      });
 
-        // Start audio recording and speech recognition
-        final audioPath = await _audioService.startRecording((text) {
-          setState(() {
-            // Append recognized text in real-time
+      // Start audio recording and speech recognition
+      final audioPath = await _audioService.startRecording((text) {
+        setState(() {
+          // Append recognized text in real-time
+          // Use a more intelligent text accumulation strategy
+          if (text.isNotEmpty && text != _transcribedText) {
             _transcribedText = text;
             _transcriptionController.text = _transcribedText.trim();
             
@@ -73,28 +75,29 @@ class _RecordingScreenState extends State<RecordingScreen> {
             _transcriptionController.selection = TextSelection.fromPosition(
               TextPosition(offset: _transcriptionController.text.length),
             );
-          });
+          }
         });
+      });
 
-        // Update audio path and duration
-        setState(() {
-          _currentAudioPath = audioPath;
-          _audioDuration = DateTime.now().millisecondsSinceEpoch;
-        });
-      } else {
-        // Stop recording
-        await _audioService.stopRecording();
+      // Update audio path and duration
+      setState(() {
+        _currentAudioPath = audioPath;
+        _audioDuration = DateTime.now().millisecondsSinceEpoch;
+      });
+    } else {
+      // Stop recording
+      await _audioService.stopRecording();
 
-        // Update state
-        setState(() {
-          _isRecording = false;
-        });
-      }
-    } catch (e) {
-      // Handle any errors during recording
-      _handleRecordingError(e);
+      // Update state
+      setState(() {
+        _isRecording = false;
+      });
     }
+  } catch (e) {
+    // Handle any errors during recording
+    _handleRecordingError(e);
   }
+}
 
   void _handleRecordingError(dynamic e) {
     setState(() {
