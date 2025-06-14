@@ -6,18 +6,21 @@ import 'dart:io';
 
 class AudioService {
   final Record _audioRecorder = Record();
-  final stt.SpeechToText _speechToText = stt.SpeechToText();
+  bool _isInitialized = false;
+  stt.SpeechToText _speechToText = stt.SpeechToText();
   
   bool _isRecording = false;
   String? _currentRecordingPath;
 
   Future<void> initialize() async {
     try {
-      // Initialize speech to text
-      await _speechToText.initialize(
-        onStatus: (status) => print('Speech Recognition Status: $status'),
-        onError: (error) => print('Speech Recognition Error: $error'),
-      );
+      if (!_isInitialized) {
+        // Initialize speech to text
+        _isInitialized = await _speechToText.initialize(
+          onStatus: (status) => print('Speech Recognition Status: $status'),
+          onError: (error) => print('Speech Recognition Error: $error'),
+        );
+      }
     } catch (e) {
       print('Initialization Error: $e');
       rethrow;
@@ -25,6 +28,10 @@ class AudioService {
   }
 
   Future<String> startRecording(Function(String) onResult) async {
+    if (!_isInitialized) {
+      throw Exception('AudioService not initialized');
+    }
+
     try {
       // Check microphone permission
       if (await _audioRecorder.hasPermission()) {
@@ -110,4 +117,42 @@ class AudioService {
 
   // Getter for current recording path
   String? get currentRecordingPath => _currentRecordingPath;
+
+  Future<void> pauseRecording() async {
+    try {
+      if (_isRecording) {
+        // Pause audio recording
+        await _audioRecorder.pause();
+        
+        // Pause speech recognition (no direct pause, so we cancel)
+        await _speechToText.cancel();
+      }
+    } catch (e) {
+      print('Pause Recording Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> resumeRecording() async {
+    try {
+      if (_isRecording) {
+        // Resume audio recording
+        await _audioRecorder.resume();
+        
+        // Resume speech recognition by starting to listen again
+        await _speechToText.listen(
+          onResult: (result) {
+            // You may want to handle the result callback here as well
+          },
+          listenMode: stt.ListenMode.dictation,
+          partialResults: true,
+          cancelOnError: true,
+          localeId: 'en_US',
+        );
+      }
+    } catch (e) {
+      print('Resume Recording Error: $e');
+      rethrow;
+    }
+  }
 }
