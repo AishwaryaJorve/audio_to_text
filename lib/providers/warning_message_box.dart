@@ -4,6 +4,7 @@ enum WarningType {
   noSound,
   microphonePermission,
   networkError,
+  saveConfirmation,
 }
 
 class WarningMessageBox extends StatelessWidget {
@@ -92,6 +93,8 @@ class WarningMessageBox extends StatelessWidget {
         return Colors.orange;
       case WarningType.networkError:
         return Colors.red;
+      case WarningType.saveConfirmation:
+        return Colors.green;
     }
   }
 
@@ -103,6 +106,8 @@ class WarningMessageBox extends StatelessWidget {
         return 'Permission Required';
       case WarningType.networkError:
         return 'Network Error';
+      case WarningType.saveConfirmation:
+        return 'Save Confirmation';
     }
   }
 
@@ -114,6 +119,8 @@ class WarningMessageBox extends StatelessWidget {
         return 'Microphone access is required to record audio. Please grant permission in settings.';
       case WarningType.networkError:
         return 'Unable to connect to the server. Please check your internet connection.';
+      case WarningType.saveConfirmation:
+        return 'Do you want to save the current recording before starting a new one?';
     }
   }
 
@@ -125,6 +132,21 @@ class WarningMessageBox extends StatelessWidget {
         return 'Open Settings';
       case WarningType.networkError:
         return 'Retry';
+      case WarningType.saveConfirmation:
+        return 'Save';
+    }
+  }
+
+  String _getDismissButtonText() {
+    switch (warningType) {
+      case WarningType.saveConfirmation:
+        return 'Discard';
+      case WarningType.noSound:
+        return 'Cancel';
+      case WarningType.microphonePermission:
+        return 'Cancel';
+      case WarningType.networkError:
+        return 'Cancel';
     }
   }
 }
