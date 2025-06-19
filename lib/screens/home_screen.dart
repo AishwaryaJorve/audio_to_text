@@ -146,37 +146,123 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTranscriptionCard(TranscriptionModel transcription) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 0,
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.pink[100],
-                  child: const Text('A', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Note',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      Text(
-                        '${_formatTime(transcription.createdAt)} · ${_formatDuration(transcription.duration)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: const Color(0xFFFF4081),
+                      child: const Text(
+                        'A',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Note',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              '${transcription.createdAt.day} ${_getMonthName(transcription.createdAt.month)}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
+                            ),
+                            const Text(' · ', style: TextStyle(color: Colors.grey)),
+                            Text(
+                              _formatTime(transcription.createdAt),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
+                            ),
+                            const Text(' · ', style: TextStyle(color: Colors.grey)),
+                            Text(
+                              '${_formatDuration(transcription.duration)}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete_outline, color: Colors.grey[600], size: 20),
+                  onPressed: () async {
+                    // Show confirmation dialog
+                    final shouldDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Delete Note'),
+                        content: const Text('Are you sure you want to delete this note?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (shouldDelete == true) {
+                      await _transcriptionService.deleteTranscription(transcription.id);
+                    }
+                  },
                 ),
               ],
             ),
+            if (transcription.text.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  transcription.text,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[800],
+                    height: 1.5,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ],
         ),
       ),
