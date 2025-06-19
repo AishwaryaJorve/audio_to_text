@@ -7,7 +7,7 @@ import '../providers/warning_message_box.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../constants/icons/app_icons.dart';
-import '../services/transcription_service.dart';
+import '../services/transcription_service.dart' as service;
 import '../services/audio_service.dart';
 
 class RecordingScreen extends StatefulWidget {
@@ -22,7 +22,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
   int get _audioDuration => DateTime.now().millisecondsSinceEpoch;
 
   // Keep essential variables
-  final TranscriptionService _transcriptionService = TranscriptionService();
+  final service.TranscriptionService _transcriptionService = service.TranscriptionService();
   final AudioService _audioService = AudioService();
   late TextEditingController _editingController;
   final ScrollController _scrollController = ScrollController();
@@ -347,7 +347,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
                 },
                 onAction: () {
                   // Call same save method as header
-                  final transcriptionService = TranscriptionService();
+                  final transcriptionService = service.TranscriptionService();
                   transcriptionService.saveTranscription(
                     text: _transcribedText,
                     audioPath: _currentAudioPath,

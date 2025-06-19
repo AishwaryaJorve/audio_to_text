@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum WarningType {
   noSound,
@@ -148,5 +150,65 @@ class WarningMessageBox extends StatelessWidget {
       case WarningType.networkError:
         return 'Cancel';
     }
+  }
+}
+
+class TranscriptionService {
+  final CollectionReference transcriptions =
+      FirebaseFirestore.instance.collection('transcriptions');
+
+  Future<void> saveTranscription({
+    required String text,
+    required String audioPath,
+    required int duration,
+  }) async {
+    try {
+      await transcriptions.add({
+        'text': text,
+        'audioPath': audioPath,
+        'duration': duration,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error saving transcription: $e');
+      throw e;
+    }
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Demo Home Page'),
+      ),
+      body: const Center(
+        child: Text('Welcome to Flutter Demo!'),
+      ),
+    );
   }
 }
