@@ -1,3 +1,4 @@
+import 'package:audio_to_text/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../../services/transcription_service.dart';
 
@@ -31,19 +32,42 @@ class RecordingHeader extends StatelessWidget {
 
   Future<void> _saveTranscription(BuildContext context) async {
     try {
-      final transcriptionService = TranscriptionService();
-      print('Transcription saved: $transcribedText');
+      if (transcribedText.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nothing to save - no transcribed text')),
+        );
+        return;
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transcription saved successfully')),
+      final transcriptionService = TranscriptionService();
+      await transcriptionService.saveTranscription(
+        text: transcribedText,
+        audioPath: audioPath,
+        duration: audioDuration,
       );
-      
-      // Reset duration after successful save
+
+      // Reset duration only after successful save
       onDurationReset?.call('0:00');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Transcription saved successfully')),
+        );
+        
+        // Replace Navigator.pop with navigation to HomeScreen
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false, // This removes all previous routes
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save transcription: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save transcription: $e')),
+        );
+      }
+      print('Save error: $e');
     }
   }
 
@@ -65,14 +89,14 @@ class RecordingHeader extends StatelessWidget {
             ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_horiz, color: Colors.white),
-              onSelected: (value) {
+              onSelected: (value) async {  // Make this async
                 switch (value) {
                   case 'save':
-                    _saveTranscription(context);
+                    await _saveTranscription(context);  // Wait for save to complete
                     break;
                   case 'delete':
                     onDelete?.call();
-                    onDurationReset?.call('0:00'); // Reset duration on delete
+                    onDurationReset?.call('0:00');
                     break;
                 }
               },
