@@ -207,7 +207,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
   }
 
   // Update the transcribed text display widget
-  Widget _buildTranscribedTextWidget() {
+  Widget _buildTranscribedTextWidget(ThemeData theme) {
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.5,
@@ -215,9 +215,9 @@ class _RecordingScreenState extends State<RecordingScreen> {
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[800]!, width: 1),
+        border: Border.all(color: theme.dividerColor, width: 1),
       ),
       child: _isEditing
           ? Column(
@@ -227,9 +227,9 @@ class _RecordingScreenState extends State<RecordingScreen> {
                   children: [
                     TextButton(
                       onPressed: () => FocusScope.of(context).unfocus(),
-                      child: const Text(
+                      child: Text(
                         'Done',
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: theme.colorScheme.primary),
                       ),
                     ),
                   ],
@@ -237,13 +237,13 @@ class _RecordingScreenState extends State<RecordingScreen> {
                 Expanded(
                   child: TextField(
                     controller: _editingController,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: theme.textTheme.bodyMedium,
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Edit transcribed text...',
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5)),
                     ),
                   ),
                 ),
@@ -257,16 +257,16 @@ class _RecordingScreenState extends State<RecordingScreen> {
                           _isEditing = false;
                           FocusScope.of(context).unfocus();
                         }),
-                        child: const Text(
+                        child: Text(
                           'Cancel',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         ),
                       ),
                       TextButton(
                         onPressed: _handleSave,
-                        child: const Text(
+                        child: Text(
                           'Save',
-                          style: TextStyle(color: Colors.blue),
+                          style: TextStyle(color: theme.colorScheme.primary),
                         ),
                       ),
                     ],
@@ -279,22 +279,19 @@ class _RecordingScreenState extends State<RecordingScreen> {
               physics: const BouncingScrollPhysics(),
               child: Text(
                 _transcribedText,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  height: 1.5,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ),
     );
   }
 
-
   // Update the build method
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: const Color(0xFF23272F),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -326,7 +323,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
                       const SizedBox(height: 20), // Add some spacing
 
                       // Transcribed text or editing area
-                      if (_transcribedText.isNotEmpty) _buildTranscribedTextWidget(),
+                      if (_transcribedText.isNotEmpty) _buildTranscribedTextWidget(theme),
 
                       // Warning Message Box
                       if (_showWarning) 
@@ -382,66 +379,70 @@ class _RecordingScreenState extends State<RecordingScreen> {
             ),
             
             // Recording visualization moved here
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: _isRecording ? Colors.red : Colors.grey,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Row(
-                      children: List.generate(
-                        10,
-                        (index) => Expanded(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 50),
-                            margin: const EdgeInsets.symmetric(horizontal: 1),
-                            height: 24 * _soundLevels[index],
-                            decoration: BoxDecoration(
-                              gradient: _isRecording
-                                  ? LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      colors: [
-                                        Colors.blue.withOpacity(0.3),
-                                        Colors.blue.withOpacity(_soundLevels[index]),
-                                      ],
-                                    )
-                                  : null,
-                              color: _isRecording ? null : Colors.grey[800],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    _recordingDuration,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
+            _buildVisualizationBar(theme),
             
             // Bottom controls
-            _buildBottomControls(),
+            _buildBottomControls(theme),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildVisualizationBar(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: _isRecording ? theme.colorScheme.error : theme.colorScheme.onSurface.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Row(
+              children: List.generate(
+                10,
+                (index) => Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 50),
+                    margin: const EdgeInsets.symmetric(horizontal: 1),
+                    height: 24 * _soundLevels[index],
+                    decoration: BoxDecoration(
+                      gradient: _isRecording
+                          ? LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                theme.colorScheme.primary.withOpacity(0.3),
+                                theme.colorScheme.primary.withOpacity(_soundLevels[index]),
+                              ],
+                            )
+                          : null,
+                      color: _isRecording ? null : theme.colorScheme.onSurface.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            _recordingDuration,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
   // Update bottom controls widget
-  Widget _buildBottomControls() {
+  Widget _buildBottomControls(ThemeData theme) {
     bool editEnabled = !_isRecording && _transcribedText.isNotEmpty;
     
     return Padding(
@@ -452,18 +453,16 @@ class _RecordingScreenState extends State<RecordingScreen> {
           IconButton(
             icon: Icon(
               _isRecording ? Icons.stop : Icons.mic,
-              color: Colors.white,
+              color: theme.colorScheme.onBackground,
             ),
             onPressed: _isRecording ? _stopRecording : _startRecording,
           ),
           IconButton(
             icon: Icon(
               Icons.edit_note,
-              color: editEnabled ? Colors.white : Colors.grey[800],
-            ),
-            style: IconButton.styleFrom(
-              disabledBackgroundColor: Colors.transparent,
-              foregroundColor: editEnabled ? Colors.white : Colors.grey[800],
+              color: editEnabled 
+                  ? theme.colorScheme.onBackground 
+                  : theme.colorScheme.onBackground.withOpacity(0.3),
             ),
             onPressed: editEnabled ? _handleEdit : null,
           ),

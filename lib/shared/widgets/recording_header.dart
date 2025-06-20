@@ -73,26 +73,29 @@ class RecordingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Note',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
+              style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_horiz, color: Colors.white),
-              onSelected: (value) async {  // Make this async
+              icon: Icon(
+                Icons.more_horiz, 
+                color: theme.colorScheme.onBackground,  // This will ensure visibility in both modes
+              ),
+              onSelected: (value) async {
                 switch (value) {
                   case 'save':
-                    await _saveTranscription(context);  // Wait for save to complete
+                    await _saveTranscription(context);
                     break;
                   case 'delete':
                     onDelete?.call();
@@ -101,23 +104,23 @@ class RecordingHeader extends StatelessWidget {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'save',
                   child: Row(
                     children: [
-                      Icon(Icons.save, size: 20),
-                      SizedBox(width: 8),
-                      Text('Save'),
+                      Icon(Icons.save, size: 20, color: theme.colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text('Save', style: theme.textTheme.bodyMedium),
                     ],
                   ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete, size: 20),
-                      SizedBox(width: 8),
-                      Text('Delete'),
+                      Icon(Icons.delete, size: 20, color: theme.colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text('Delete', style: theme.textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -128,25 +131,40 @@ class RecordingHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.calendar_today, color: Colors.grey, size: 16),
+            Icon(Icons.calendar_today, 
+              color: theme.colorScheme.onBackground.withOpacity(0.6), 
+              size: 16
+            ),
             const SizedBox(width: 4),
             Text(
               _getCurrentTimestamp(),
-              style: TextStyle(color: Colors.grey[400]),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onBackground.withOpacity(0.6),
+              ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.access_time, color: Colors.grey, size: 16),
+            Icon(Icons.access_time, 
+              color: theme.colorScheme.onBackground.withOpacity(0.6), 
+              size: 16
+            ),
             const SizedBox(width: 4),
             Text(
               recordingDuration,
-              style: TextStyle(color: Colors.grey[400]),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onBackground.withOpacity(0.6),
+              ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.person, color: Colors.grey, size: 16),
+            Icon(Icons.person, 
+              color: theme.colorScheme.onBackground.withOpacity(0.6), 
+              size: 16
+            ),
             const SizedBox(width: 4),
             Text(
               'Aishwarya Jorve',
-              style: TextStyle(color: Colors.grey[400]),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onBackground.withOpacity(0.6),
+              ),
             ),
           ],
         ),

@@ -8,8 +8,7 @@ import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/recording_screen.dart';
 import 'screens/transcription_screen.dart';
-import 'shared/theme/app_theme.dart';
-// Ensure this is imported
+import 'constants/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +22,7 @@ void main() async {
   }
 
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 Future<bool> _checkInternetConnectivity() async {
@@ -55,24 +54,16 @@ Future<bool> _checkInternetConnectivity() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Audio to Text Converter',
+      title: 'Audio to Text',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: AuthWrapper(), // Use AuthWrapper instead of direct AuthScreen
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        '/transcription': (context) => const TranscriptionScreen(),
-        '/record': (context) => const RecordingScreen(),
-      },
-      onGenerateRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (context) => const AuthScreen(),
-        );
-      },
+      themeMode: ThemeMode.light, // Force dark mode for testing
+      home: const AuthScreen(),
     );
   }
 }
