@@ -1,6 +1,7 @@
 import 'package:audio_to_text/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../../services/transcription_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RecordingHeader extends StatelessWidget {
   final String transcribedText;
@@ -74,101 +75,119 @@ class RecordingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final user = FirebaseAuth.instance.currentUser;
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Note',
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            PopupMenuButton<String>(
-              icon: Icon(
-                Icons.more_horiz, 
-                color: theme.colorScheme.onBackground,  // This will ensure visibility in both modes
-              ),
-              onSelected: (value) async {
-                switch (value) {
-                  case 'save':
-                    await _saveTranscription(context);
-                    break;
-                  case 'delete':
-                    onDelete?.call();
-                    onDurationReset?.call('0:00');
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'save',
-                  child: Row(
-                    children: [
-                      Icon(Icons.save, size: 20, color: theme.colorScheme.onSurface),
-                      const SizedBox(width: 8),
-                      Text('Save', style: theme.textTheme.bodyMedium),
-                    ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hello,',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete, size: 20, color: theme.colorScheme.onSurface),
-                      const SizedBox(width: 8),
-                      Text('Delete', style: theme.textTheme.bodyMedium),
-                    ],
+                  Text(
+                    // Display user's display name, or email, or 'User' if both are null
+                    user?.displayName ?? user?.email ?? 'User',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.6),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ],
+              ),
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.more_horiz, 
+                  color: theme.colorScheme.onBackground,  // This will ensure visibility in both modes
                 ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Icon(Icons.calendar_today, 
-              color: theme.colorScheme.onBackground.withOpacity(0.6), 
-              size: 16
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _getCurrentTimestamp(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.6),
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'save':
+                      await _saveTranscription(context);
+                      break;
+                    case 'delete':
+                      onDelete?.call();
+                      onDurationReset?.call('0:00');
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'save',
+                    child: Row(
+                      children: [
+                        Icon(Icons.save, size: 20, color: theme.colorScheme.onSurface),
+                        const SizedBox(width: 8),
+                        Text('Save', style: theme.textTheme.bodyMedium),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 20, color: theme.colorScheme.onSurface),
+                        const SizedBox(width: 8),
+                        Text('Delete', style: theme.textTheme.bodyMedium),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.access_time, 
-              color: theme.colorScheme.onBackground.withOpacity(0.6), 
-              size: 16
-            ),
-            const SizedBox(width: 4),
-            Text(
-              recordingDuration,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.6),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, 
+                color: theme.colorScheme.onBackground.withOpacity(0.6), 
+                size: 16
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.person, 
-              color: theme.colorScheme.onBackground.withOpacity(0.6), 
-              size: 16
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'Aishwarya Jorve',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.6),
+              const SizedBox(width: 4),
+              Text(
+                _getCurrentTimestamp(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 8),
+              Icon(Icons.access_time, 
+                color: theme.colorScheme.onBackground.withOpacity(0.6), 
+                size: 16
+              ),
+              const SizedBox(width: 4),
+              Text(
+                recordingDuration,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.person, 
+                color: theme.colorScheme.onBackground.withOpacity(0.6), 
+                size: 16
+              ),
+              const SizedBox(width: 4),
+              Text(
+                // Display user's display name, or email, or 'User' if both are null
+                user?.displayName ?? user?.email ?? 'User',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
