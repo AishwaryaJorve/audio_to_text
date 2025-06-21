@@ -11,21 +11,25 @@ import 'screens/transcription_screen.dart';
 import 'constants/app_theme.dart';
 
 void main() async {
+  // Ensure Flutter binding is initialized before any async operations
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Simplified connectivity check
   try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    print('Connectivity Result: $connectivityResult');
-  } catch (e) {
-    print('Connectivity Error: $e');
-  }
+    // Initialize Firebase first
+    await Firebase.initializeApp();
 
-  await Firebase.initializeApp();
-  runApp(const MyApp());
+    // Check connectivity
+    await _checkConnectivity();
+    
+    // Run the app
+    runApp(const MyApp());
+  } catch (e) {
+    print('Initialization Error: $e');
+    runApp(ErrorApp(error: e));
+  }
 }
 
-Future<bool> _checkInternetConnectivity() async {
+Future<void> _checkConnectivity() async {
   try {
     final connectivity = Connectivity();
     final result = await connectivity.checkConnectivity();
@@ -33,23 +37,22 @@ Future<bool> _checkInternetConnectivity() async {
     switch (result) {
       case ConnectivityResult.wifi:
         print('Connected to WiFi');
-        return true;
+        break;
       case ConnectivityResult.mobile:
         print('Connected to Mobile Network');
-        return true;
+        break;
       case ConnectivityResult.none:
         print('No Internet Connection');
-        return false;
+        break;
       case ConnectivityResult.bluetooth:
       case ConnectivityResult.ethernet:
       case ConnectivityResult.vpn:
       case ConnectivityResult.other:
         print('Connected via alternative network');
-        return true;
+        break;
     }
   } catch (e) {
     print('Connectivity Check Error: $e');
-    return false;
   }
 }
 
@@ -62,8 +65,39 @@ class MyApp extends StatelessWidget {
       title: 'Audio to Text',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light, // Force dark mode for testing
-      home: const AuthScreen(),
+      themeMode: ThemeMode.light,
+      home: AuthWrapper(),
+    );
+  }
+}
+
+class ErrorApp extends StatelessWidget {
+  final Object? error;
+
+  const ErrorApp({Key? key, this.error}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'App Initialization Error',
+                style: TextStyle(fontSize: 20, color: Colors.red),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                error.toString(),
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
