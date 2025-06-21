@@ -398,12 +398,6 @@ class _TranscriptionDetailScreenState extends State<TranscriptionDetailScreen> {
                           'Audio Recording',
                           style: theme.textTheme.titleMedium,
                         ),
-                        Text(
-                          _formatDuration(Duration(milliseconds: transcription.duration)),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                        ),
                       ],
                     ),
                   ),

@@ -99,7 +99,8 @@ class AuthScreen extends StatelessWidget {
         _buildSocialButton(
           context: context,
           text: 'Continue with Apple',
-          logo: 'assets/icons/apple_logo.png',
+          logo: 'assets/icons/apple2_logo.png',
+          logoSize: 47,
           onPressed: () {
             Navigator.pushNamed(context, '/home');
           },
@@ -137,26 +138,13 @@ class AuthScreen extends StatelessWidget {
         // Google Login
         _buildSocialButton(
           context: context,
-          text: 'Continue with Google',
-          logo: 'assets/icons/google2_logo.png',
+          text: '   Continue with Google',
+          logo: 'assets/icons/google_logo.png',
           onPressed: () => _handleGoogleSignIn(context),
-          backgroundColor: Colors.blue,
-          textColor: Colors.white,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
         ),
         
-        const SizedBox(height: 10),
-
-        // Microsoft Login
-        _buildSocialButton(
-          context: context,
-          text: 'Continue with Microsoft',
-          logo: 'assets/icons/microsoft2_logo.png',
-          onPressed: () {
-            Navigator.pushNamed(context, '/home');
-          },
-          backgroundColor: Colors.blue,
-          textColor: Colors.white,
-        ),
       ],
     );
   }
@@ -168,23 +156,14 @@ class AuthScreen extends StatelessWidget {
     required VoidCallback onPressed,
     Color? backgroundColor,
     Color? textColor,
+    double logoSize = 24,
   }) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
     // Determine background and text colors
-    Color buttonBackground;
-    Color buttonText;
-
-    if (backgroundColor != null) {
-      // If specific background is provided (blue for Google/Microsoft)
-      buttonBackground = isDarkMode ? Colors.blue.shade800 : backgroundColor;
-      buttonText = Colors.white;
-    } else {
-      // Default styling for Apple button
-      buttonBackground = isDarkMode ? Colors.black : Colors.white;
-      buttonText = isDarkMode ? Colors.white : Colors.black;
-    }
+    Color buttonBackground = backgroundColor ?? (isDarkMode ? Colors.black : Colors.white);
+    Color buttonText = textColor ?? (isDarkMode ? Colors.white : Colors.black);
 
     return SizedBox(
       height: 45,
@@ -209,22 +188,23 @@ class AuthScreen extends StatelessWidget {
           children: [
             Image.asset(
               logo,
-              height: 18,
-              width: 18,
+              height: logoSize,
+              width: logoSize,
+              fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 18,
-                  height: 18,
+                  width: logoSize,
+                  height: logoSize,
                   color: Colors.grey,
-                  child: Icon(Icons.error, size: 14),
+                  child: Icon(Icons.error, size: 18),
                 );
               },
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),  // Increased spacing
             Text(
               text,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: buttonText,
               ),

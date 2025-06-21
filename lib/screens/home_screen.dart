@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../shared/widgets/bottom_navigation.dart';
 import '../services/transcription_service.dart';
@@ -5,6 +6,7 @@ import '../models/transcription_model.dart';
 import 'account_screen.dart';
 import 'recording_screen.dart';
 import 'transcription_detail_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -165,11 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: theme.colorScheme.secondary, 
+                        backgroundColor: _generateColorFromString(_getInitials(FirebaseAuth.instance.currentUser?.displayName)), 
                         child: Text(
-                          'A',
+                          _getInitials(FirebaseAuth.instance.currentUser?.displayName),
                           style: TextStyle(
-                            color: theme.colorScheme.onSecondary,
+                            color: Theme.of(context).colorScheme.onSecondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -271,6 +273,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _formatTime(DateTime time) {
     return '${time.hour > 12 ? time.hour - 12 : time.hour}:${time.minute.toString().padLeft(2, '0')}${time.hour >= 12 ? 'PM' : 'AM'}';
+  }
+
+  String _getInitials(String? name) {
+    if (name == null || name.isEmpty) return 'U';
+    
+    // Try to get initials from display name first
+    final nameParts = name.trim().split(' ');
+    if (nameParts.isNotEmpty) {
+      if (nameParts.length > 1) {
+        // If multiple words, take first letter of first and last name
+        return (nameParts.first[0] + nameParts.last[0]).toUpperCase();
+      } else {
+        // If single word, take first two letters
+        return nameParts.first.substring(0, 2).toUpperCase();
+      }
+    }
+    
+    // Fallback to email initial
+    return name[0].toUpperCase();
+  }
+
+  Color _generateColorFromString(String input) {
+    // Generate a consistent color based on the input string
+    final hash = input.hashCode;
+    return Color.fromRGBO(
+      (hash & 0xFF0000) >> 16,
+      (hash & 0x00FF00) >> 8,
+      hash & 0x0000FF,
+      0.5,
+    );
   }
 
   @override

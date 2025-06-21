@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'constants/app_theme.dart';
 import 'providers/theme_provider.dart';
-import 'widgets/auth_wrapper.dart';
+import 'shared/widgets/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
