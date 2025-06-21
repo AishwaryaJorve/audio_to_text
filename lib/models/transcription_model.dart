@@ -19,6 +19,7 @@ class TranscriptionModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'userId': userId,
       'text': text,
       'createdAt': createdAt,
@@ -31,14 +32,32 @@ class TranscriptionModel {
     DocumentSnapshot<Map<String, dynamic>> snapshot,
     SnapshotOptions? options,
   ) {
-    final data = snapshot.data()!;
+    final data = snapshot.data() ?? {};
     return TranscriptionModel(
-      id: snapshot.id,
-      userId: data['userId'],
-      text: data['text'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      audioPath: data['audioPath'],
-      duration: data['duration'],
+      id: data['id'] ?? snapshot.id,
+      userId: data['userId'] ?? '',
+      text: data['text'] ?? '',
+      createdAt: (data['createdAt'] is Timestamp) 
+        ? (data['createdAt'] as Timestamp).toDate() 
+        : DateTime.now(),
+      audioPath: data['audioPath'] ?? '',
+      duration: data['duration'] ?? 0,
     );
+  }
+
+  bool isValid() {
+    return id.isNotEmpty && 
+           userId.isNotEmpty && 
+           text.isNotEmpty && 
+           audioPath.isNotEmpty && 
+           duration > 0;
+  }
+
+  String get formattedDate {
+    return '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
+  }
+
+  String get audioFileName {
+    return audioPath.split('/').last;
   }
 } 

@@ -19,7 +19,7 @@
 	</array>
 <!-- Permission options for the `microphone` group -->
     <key>NSMicrophoneUsageDescription</key>
-    <string>microphone Need for app functionality</string>
+    <string>We need microphone access to record audio for transcription</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
     <string>Need for app functionality</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -65,5 +65,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- <key>NSFileProviderDomainUsageDescription</key>
+	<string>We need file access to save and manage audio recordings</string>
+	<key>NSFileProviderPresenterUsageDescription</key>
+	<string>We need file access to save and manage audio recordings</string>
+	<key>NSFileWriteUsageDescription</key>
+	<string>We need file write access to save audio recordings</string>
+	<key>NSFileReadUsageDescription</key>
+	<string>We need file read access to manage audio recordings</string> -->
 </dict>
 </plist>

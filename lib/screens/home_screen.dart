@@ -53,12 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.expand_more),
-                onPressed: () {
-                  // Handle dropdown
-                },
-              ),
             ],
           ),
         ),
