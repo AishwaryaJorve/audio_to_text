@@ -4,6 +4,7 @@ import '../services/transcription_service.dart';
 import '../models/transcription_model.dart';
 import 'account_screen.dart';
 import 'recording_screen.dart';
+import 'transcription_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -146,117 +147,129 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTranscriptionCard(TranscriptionModel transcription) {
     final theme = Theme.of(context);
     
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                       backgroundColor: theme.colorScheme.secondary, 
-                      child: Text(
-                        'A',
-                        style: TextStyle(
-                          color: theme.colorScheme.onSecondary,
-                          fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TranscriptionDetailScreen(
+              transcription: transcription,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: theme.colorScheme.secondary, 
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Note',
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '${transcription.createdAt.day} ${_getMonthName(transcription.createdAt.month)}',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                              Text(' · ', style: theme.textTheme.bodyMedium),
+                              Text(
+                                _formatTime(transcription.createdAt),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                              Text(' · ', style: theme.textTheme.bodyMedium),
+                              Text(
+                                _formatDuration(transcription.duration),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      size: 20,
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Note',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '${transcription.createdAt.day} ${_getMonthName(transcription.createdAt.month)}',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              ),
+                    onPressed: () async {
+                      // Show confirmation dialog
+                      final shouldDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Note'),
+                          content: const Text('Are you sure you want to delete this note?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
                             ),
-                            Text(' · ', style: theme.textTheme.bodyMedium),
-                            Text(
-                              _formatTime(transcription.createdAt),
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                            ),
-                            Text(' · ', style: theme.textTheme.bodyMedium),
-                            Text(
-                              _formatDuration(transcription.duration),
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                    size: 20,
-                  ),
-                  onPressed: () async {
-                    // Show confirmation dialog
-                    final shouldDelete = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Delete Note'),
-                        content: const Text('Are you sure you want to delete this note?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                      );
 
-                    if (shouldDelete == true) {
-                      await _transcriptionService.deleteTranscription(transcription.id);
-                    }
-                  },
+                      if (shouldDelete == true) {
+                        await _transcriptionService.deleteTranscription(transcription.id);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              if (transcription.text.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    transcription.text,
+                    style: theme.textTheme.bodyMedium,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
-            ),
-            if (transcription.text.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  transcription.text,
-                  style: theme.textTheme.bodyMedium,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );
